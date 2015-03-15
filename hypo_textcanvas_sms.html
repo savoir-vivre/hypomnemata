@@ -45,17 +45,21 @@
 			stats.domElement.style.top = '0px';
 			container.appendChild( stats.domElement );
 			
-			var x = window.innerWidth / 2 - 300;
-			var y = window.innerHeight / 2 - 300;
 			
 			
 			var text = httpGet("http://www.lp-sms.net/klausi/api/messages");
-			var str = JSON.stringify(text);
-			var sms = JSON.parse(str);
-			alert(str);
-			mesh = createLabel(sms.data, x, y, 0, 40, "black", "yellow");
 			
+			var sms = JSON.parse(text);
+			
+			alert(sms[0].id + "" + sms[0].data);
+			
+			var x = (window.innerWidth / 2 - 300);
+			var y = (window.innerHeight / 2 - 300);
+		
+			
+			mesh = createLabel(sms[0].id + "" + sms[0].data, x, y, 0, 40, "black", "yellow");
 			scene.add(mesh);
+			
 			
 			//
 			
@@ -78,6 +82,15 @@
 			xmlHttp.send( null );
 			return xmlHttp.responseText;
 		}
+		
+	function randString(x){
+		var s = "";
+		while(s.length<x&&x>0){
+			var r = Math.random();
+			s+= (r<0.1?Math.floor(r*100):String.fromCharCode(Math.floor(r*26) + (r>0.5?97:65)));
+		}
+    return s;
+	}
 	
 	
 	function createLabel(text, x, y, z, size, color, backGroundColor, backgroundMargin) {
