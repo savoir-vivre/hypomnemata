@@ -20,6 +20,7 @@
 	var camera, scene, renderer;
 	var plane, cube;
 	var mesh;
+	var i;
 	
 	init();
 	animate();
@@ -51,15 +52,19 @@
 			
 			var sms = JSON.parse(text);
 			
-			alert(sms[0].id + "" + sms[0].data);
 			
-			var x = (window.innerWidth / 2 - 300);
-			var y = (window.innerHeight / 2 - 300);
-		
+			//alert(sms[0].id + "" + sms[0].data);
 			
-			mesh = createLabel(sms[0].id + "" + sms[0].data, x, y, 0, 40, "black", "yellow");
+			for (i=0; i < 10; i++){
+			
+			
+			var x = (window.innerWidth / 2 - 300) + Math.random()*1000;
+			var y = (window.innerHeight / 2 - 300) + Math.random()*1000;
+			var z = 0 + Math.random()*1000;
+			
+			mesh = createLabel(sms[i].id + "" + sms[i].data, x, y, z, 40, "black", "yellow");
 			scene.add(mesh);
-			
+			}
 			
 			//
 			
@@ -151,7 +156,7 @@
 		}
 	
 		function render() {
-
+			
 				renderer.render( scene, camera );
 
 			}
