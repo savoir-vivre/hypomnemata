@@ -46,16 +46,14 @@
 			stats.domElement.style.top = '0px';
 			container.appendChild( stats.domElement );
 			
-			
+			var count = httpGet("http://intraaktion.de/cgi-bin/hm.count");
 			
 			var text = httpGet("http://intraaktion.de/cgi-bin/hm.all");
-			
 			var sms = JSON.parse(text);
-			
 			
 			//alert(sms[0].id + "" + sms[0].data);
 			
-			for (i=0; i < 10; i++){
+			for (i=0; i < count; i++){
 			
 			
 			var x = (window.innerWidth / 2 - 300) + Math.random()*1000;
