@@ -25,12 +25,23 @@
 
 			var mesh;
 
-			var speedy, rangy;
+			var speedy = 0.0001;
+			var rangy = 100;
 			var triangles = 30;
 			
+			var xkey = 1;
+			var ykey = 1;
+			var zkey = 1;
+			
 			var effectController = {
+				triangles: 30,
 				speed: 0.001,
-				range: 100.
+				range: 100.,
+				x: 1,
+				y: 1,
+				z: 1
+				
+				
 			}
 			
 			init();
@@ -40,9 +51,13 @@
 
 				var gui = new dat.GUI();
 
-				
+				gui.add( effectController, "triangles", 1, 30 ).onChange( function( value ) { triangles = value; } );
 				gui.add( effectController, "speed", 0.0001, 0.001 ).onChange( function( value ) { speedy = value; } );
-				gui.add( effectController, "range", 0., 300., 1 ).onChange( function( value ) { rangy = value; } );
+				gui.add( effectController, "range", 0., 300., 100 ).onChange( function( value ) { rangy = value; } );
+				gui.add( effectController, "x", -30., 30, 1 ).onChange( function( value ) { xkey = value; } );
+				gui.add( effectController, "y", -30., 30, 1 ).onChange( function( value ) { ykey = value; } );
+				gui.add( effectController, "z", -30., 30, 1 ).onChange( function( value ) { zkey = value; } );
+				
 			}
 
 			function init() {
@@ -142,7 +157,7 @@
 
 					// colors
 
-					var vx = ( x / n ) + 0.5;
+					var vx = ( x / n ) + 1.5;
 					var vy = ( y / n ) + 0.5;
 					var vz = ( z / n ) + 0.5;
 
@@ -222,18 +237,18 @@
 				var position = mesh.geometry.attributes.position.array;
 				
 				for( var i = 0; i < triangles * 3 * 3; i += 9 ) {
-					var l = i+0.1;
-					position[ i ]     = rangy * ( 1 + Math.sin( time * l) );
-					position[ i + 1 ] = rangy * ( 1 + Math.sin( time + 0.1*l ) );
-					position[ i + 2 ] = rangy * ( 1 + Math.sin( time + 0.2*l ) );
+					var l = i*10+0.001;
+					position[ i ]     = rangy * ( xkey + Math.sin( time + 0.001) );
+					position[ i + 1 ] = rangy * ( ykey + Math.sin( time + 0.001*l ) );
+					position[ i + 2 ] = rangy * ( zkey + Math.sin( time + 0.002*l ) );
 
-					position[ i + 3 ] = rangy * ( 1 + Math.sin( time + 0.3*l) );
-					position[ i + 4 ] = rangy * ( 1 + Math.sin( time + 0.4*l ) );
-					position[ i + 5 ] = rangy * ( 1 + Math.sin( time + 0.5*l) );
+					position[ i + 3 ] = rangy * ( -xkey*0.2  + Math.sin( time + 0.003*l) );
+					position[ i + 4 ] = rangy * ( -ykey*0.2  + Math.sin( time + 0.004*l ) );
+					position[ i + 5 ] = rangy * ( -zkey*0.2  + Math.sin( time + 0.005*l) );
 
-					position[ i + 6 ] = rangy * ( 1 + Math.sin( time + 0.6*l ) );
-					position[ i + 7 ] = rangy * ( 1 + Math.sin( time + 0.7*l ) );
-					position[ i + 8 ] = rangy * ( 1 + Math.sin( time + 0.8*l ) );
+					position[ i + 6 ] = rangy * ( xkey*0.6  + Math.sin( time + 0.006*l ) );
+					position[ i + 7 ] = rangy * ( ykey*0.6  + Math.sin( time + 0.007*l ) );
+					position[ i + 8 ] = rangy * ( zkey*0.6 + Math.sin( time + 0.008*l ) );
 
 			}
 
