@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - buffergeometry</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+	</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - buffergeometry</div>
+
+		<script src="js/three.min.js"></script>
+		<script src="js/stats.min.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/dat.gui.min.js"></script>
+		<script src="js/helvetiker_bold.typeface.js"></script>
+
+		<script>
+
+
+			var container, stats;
+
+			var camera, scene, renderer;
+
+			var mesh;
+			var textMesh;
+			var group = new THREE.Object3D();
+			var speedy = 0.0001;
+			var rangy = 0;
+			var triangles = 30;
+			var light = 0.001;
+			var distance = 50.;
+			
+			var xkey = 1;
+			var ykey = 1;
+			var zkey = 1;
+			var light0;
+			var light1;
+			var snd = new Audio("/audio/bd2.mp3"); 
+			var snd2 = new Audio("/audio/click.mp3"); 
+			var snd3 = new Audio("/audio/noise1.mp3"); 
+			snd3.loop = true;
+			var snd4 = new Audio("/audio/noise2.mp3"); 
+			snd4.loop = true;
+			var snd5 = new Audio("/audio/noise4.mp3"); 
+			snd5.loop = true;
+			var snd6 = new Audio("/audio/click4.mp3"); 
+			
+			var effectController = {
+				triangles: 30,
+				speed: 0.001,
+				range: 0,
+				x: 1,
+				y: 1,
+				z: 1,
+				light: 0.001,
+				distance:50.,
+				id: function() {
+					var l = group.children.length;
+					for (var i=0; i<l; i++){
+					obj = group.children [i]; 
+					group.remove( obj )}; 
+					var value = Math.random()*countsms;
+					smsreader(10, value); 
+					} 
+				
+			};
+			
+			var rndmarray = [];
+		
+			for (var i = 0; i <= triangles; i++) {
+			   rndmarray.push(i);
+			}
+			
+			var texta = httpGet("http://www.lp-sms.net/savoirvivre/api/messages");
+			var smsa = JSON.parse(texta);
+			
+			var countsms = getMax(smsa, "id");
+			
+			
+			init();
+			animate();
+			
+			
+			
+			function getMax(arr, prop) {
+				var max;
+				for (var i=0 ; i<arr.length ; i++) {
+					if (!max || parseInt(arr[i][prop]) > parseInt(max[prop]))
+						max = arr[i].id;
+				}
+				return max;
+				
+			}
+			
+			
+			function initGUI() {
+				
+				
+				var gui = new dat.GUI();
+
+				gui.add( effectController, "triangles", 1, 30 ).onChange( function( value ) { triangles = value; snd6.play(); } );
+				gui.add( effectController, "speed", 0.0001, 0.001 ).onChange( function( value ) { speedy = value; snd6.play(); } );
+				gui.add( effectController, "range", 0., 300., 0 ).onChange( function( value ) { rangy = value; } );
+				gui.add( effectController, "x", -30., 30, 1 ).onChange( function( value ) { xkey = value; } );
+				gui.add( effectController, "y", -30., 30, 1 ).onChange( function( value ) { ykey = value; } );
+				gui.add( effectController, "z", -30., 30, 1 ).onChange( function( value ) { zkey = value; } );
+				gui.add( effectController, "light", 0.0, 7.0, 1. ).onChange( function( value ) { light = value; } );
+				gui.add( effectController, "distance", 1., 5000., 50. ).onChange( function( value ) { distance = value; } );
+				gui.add( effectController, 'id' );
+			}
+
+			function init() {
+				initGUI();
+				snd3.play();
+				snd4.play();
+				container = document.getElementById( 'container' );
+
+				//
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 19500 );
+				camera.position.z = 2750;
+				
+				controls = new THREE.OrbitControls( camera, container );
+				scene = new THREE.Scene();
+				
+				
+				
+				light1 = new THREE.PointLight( 0xffff00, 0., 5000 );
+				scene.add( light1 );
+				
+				light2 = new THREE.PointLight( 0xffff00, 1., 750 );
+				
+				scene.add( light2 );
+				
+				
+				
+
+				
+				
+				
+				/// BUFFERGEOM
+				var geometry = new THREE.BufferGeometry();
+								
+				var positions = new Float32Array( triangles * 3 * 3 );
+				var normals = new Float32Array( triangles * 3 * 3 );
+				var colors = new Float32Array( triangles * 3 * 3 );
+				
+				var color = new THREE.Color();
+				
+				var n = 1000, n2 = n/2;	// triangles spread in the cube
+				var d = 1200, d2 = d/2;	// individual triangle size
+				
+				var pA = new THREE.Vector3();
+				var pB = new THREE.Vector3();
+				var pC = new THREE.Vector3();
+
+				var cb = new THREE.Vector3();
+				var ab = new THREE.Vector3();
+				
+				for ( var i = 0; i < positions.length; i += 9 ) {
+
+					// positions
+
+					var x = Math.random() * n - n2;
+					var y = Math.random() * n - n2;
+					var z = Math.random() * n - n2;
+
+					var ax = x + Math.random() * d - d2;
+					var ay = y + Math.random() * d - d2;
+					var az = z + Math.random() * d - d2;
+
+					var bx = x + Math.random() * d - d2;
+					var by = y + Math.random() * d - d2;
+					var bz = z + Math.random() * d - d2;
+
+					var cx = x + Math.random() * d - d2;
+					var cy = y + Math.random() * d - d2;
+					var cz = z + Math.random() * d - d2;
+
+					positions[ i ]     = ax;
+					positions[ i + 1 ] = ay;
+					positions[ i + 2 ] = az;
+
+					positions[ i + 3 ] = bx;
+					positions[ i + 4 ] = by;
+					positions[ i + 5 ] = bz;
+
+					positions[ i + 6 ] = cx;
+					positions[ i + 7 ] = cy;
+					positions[ i + 8 ] = cz;
+					
+					
+					
+					// flat face normals
+
+					pA.set( ax, ay, az );
+					pB.set( bx, by, bz );
+					pC.set( cx, cy, cz );
+
+					cb.subVectors( pC, pB );
+					ab.subVectors( pA, pB );
+					cb.cross( ab );
+
+					cb.normalize();
+
+					var nx = cb.x;
+					var ny = cb.y;
+					var nz = cb.z;
+
+					normals[ i ]     = nx;
+					normals[ i + 1 ] = ny;
+					normals[ i + 2 ] = nz;
+
+					normals[ i + 3 ] = nx;
+					normals[ i + 4 ] = ny;
+					normals[ i + 5 ] = nz;
+
+					normals[ i + 6 ] = nx;
+					normals[ i + 7 ] = ny;
+					normals[ i + 8 ] = nz;
+
+					// colors
+
+					var vx = ( x / n ) + 0.0;
+					var vy = ( y / n ) + 1.0;
+					var vz = ( z / n ) + 1.0;
+
+					color.setRGB( vx, vy, vz );
+
+					colors[ i ]     = color.r;
+					colors[ i + 1 ] = color.g;
+					colors[ i + 2 ] = color.b;
+
+					colors[ i + 3 ] = color.r;
+					colors[ i + 4 ] = color.g;
+					colors[ i + 5 ] = color.b;
+
+					colors[ i + 6 ] = color.r;
+					colors[ i + 7 ] = color.g;
+					colors[ i + 8 ] = color.b;
+					
+					
+					}
+					
+				geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+				geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+				geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );				
+				
+				geometry.drawcalls.push( {
+					start: 0,
+					count: 0,
+					index: 0
+				} );
+
+				geometry.computeBoundingSphere();
+
+				var material = new THREE.MeshPhongMaterial( {
+						color: 0xaaaaaa, specular: 0xffffff, shininess: 50,
+						side: THREE.DoubleSide, vertexColors: THREE.VertexColors
+				} );
+				mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+
+				//
+
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				container.appendChild( renderer.domElement );
+
+				//
+
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
+				
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'mouseup', onDocumentMouseDown, false );
+				smsreader(10,0);
+				}
+				
+			function smsreader(count, page) {
+			var count = count;
+			var page = parseInt(page);
+			
+			
+			for (i=0; i < count; i++){
+			var start = i + page;
+			
+			var materialFront = new THREE.MeshPhongMaterial( {
+						color: 0xffffff, specular: 0x000000, shininess: 1450,
+						side: THREE.DoubleSide, vertexColors: THREE.VertexColors
+				} );
+			
+
+			var materialSide = new THREE.MeshPhongMaterial( {
+						color: 0x000000, specular: 0xffffff, shininess: 1450,
+						side: THREE.DoubleSide, vertexColors: THREE.VertexColors
+				} );
+			var materialArray = [ materialFront, materialSide ];
+					
+			var textGeom = new THREE.TextGeometry( "ID:"+ smsa[start].id + " - " + smsa[start].data, 
+						{
+							size: 10, height: 4, curveSegments: 3,
+							font: "helvetiker", weight: "bold", style: "normal",
+							bevelThickness: 1, bevelSize: 1, bevelEnabled: true,
+							material: 0, extrudeMaterial: 1
+						});
+					
+
+			var textMaterial = new THREE.MeshFaceMaterial(materialArray);
+			var textMesh = new THREE.Mesh(textGeom, textMaterial );
+	
+			textGeom.computeBoundingBox();
+			var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
+			
+			var xrnd = (Math.random() * 1000) - 500;
+			var yrnd = (Math.random() * 1000) - 500;
+			var zrnd = (Math.random() * 1000) - 500;
+			textMesh.position.set( xrnd, yrnd, zrnd );
+			
+			//textMesh.rotation.z = -Math.PI / Math.random()*10;
+			//textMesh.rotation.y = -Math.PI / Math.random()*10;
+			//textMesh.rotation.x = -Math.PI / Math.random()*10;
+			//scene.add(textMesh);
+			//textMesh.matrixAutoUpdate = false;
+			//textMesh.updateMatrix();
+			
+			group.add( textMesh );
+			
+			}
+			scene.add( group );
+			
+			
+			
+			}
+				
+			function smsreload(count,start){
+				
+				var count = count;
+				var page = parseInt(start);
+				smsreader(count,page);
+				}
+				
+			function httpGet(theUrl){
+					var xmlHttp = null;
+
+					xmlHttp = new XMLHttpRequest();
+					xmlHttp.open( "GET", theUrl, false );
+					xmlHttp.send( null );
+					return xmlHttp.responseText;
+				}
+				//
+
+			function onDocumentMouseDown( event ) {
+
+				if (event.type == 'mousedown')
+				{snd5.play()
+				};
+				if (event.type == 'mouseup')
+				{snd5.pause()
+				};
+				}
+				  
+			function animate() {
+				
+				
+				
+				requestAnimationFrame( animate );
+
+				render();
+				stats.update();
+
+			}
+
+			function render() {
+				
+				var time = Date.now() * speedy;
+				
+				light2.position.x = camera.position.x;
+				light2.position.y = camera.position.y;
+				light2.position.z = camera.position.z;
+				
+				
+				var position = mesh.geometry.attributes.position.array;
+				var color = mesh.geometry.attributes.color.array;
+			
+				light1.distance = distance;
+				light1.intensity = light / 3.5;
+				snd3.volume = distance / 5000.;
+				snd3.playbackRate = light / 7. + 0.5 ;
+				
+				snd4.volume = (rangy / 300.);
+				
+				for( var i = 0; i < triangles * 3 * 3; i += 9 ) {
+				
+					var l = i*1000+0.001;
+					var arraypos = i / 9;
+					var snd_speed = 10000;
+					//triangles jumping randomly and producing sound & changing color
+					var jumps = Math.random()*snd_speed;
+					
+					if (jumps < 1){
+						snd.playbackRate = (Math.random() * 2.)+0.5;
+						snd.volume = Math.random() * 0.5 + 0.5;
+						snd.play();
+						var newpos = (Math.random()*200) + 200;
+						rndmarray[arraypos] = newpos;
+										
+
+						color[ i ]     = 1;
+						color[ i + 1 ] = 0;
+						color[ i + 2 ] = 0;
+
+						color[ i + 3 ] = 1;
+						color[ i + 4 ] = 0;
+						color[ i + 5 ] = 0;
+
+						color[ i + 6 ] = 1;
+						color[ i + 7 ] = 0;
+						color[ i + 8 ] = 0;
+					}
+					if (jumps > snd_speed - 4){
+					snd2.play();
+					light0 = new THREE.AmbientLight( 0x000f4f ) ;
+					scene.add(light0);
+					
+					
+						var newpos = 0;
+						rndmarray[arraypos] = newpos;
+						
+						color[ i ]     = 0;
+						color[ i + 1 ] = 1;
+						color[ i + 2 ] = 1;
+
+						color[ i + 3 ] = 0;
+						color[ i + 4 ] = 1;
+						color[ i + 5 ] = 1;
+
+						color[ i + 6 ] = 0;
+						color[ i + 7 ] = 1;
+						color[ i + 8 ] = 1;
+						
+					}
+					setTimeout(
+						function() {
+							scene.remove(light0);
+							},550);
+					//rndmarray[arraypos] += (Math.random()*3);
+					
+					position[ i ]     = ((rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.001*l)))*xkey;
+					position[ i + 1 ] = (rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.001*l )*ykey );
+					position[ i + 2 ] = (rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.002*l )*zkey );
+
+					position[ i + 3 ] = ((rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.003*l)))*xkey;
+					position[ i + 4 ] = (rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.004*l ) )*ykey;
+					position[ i + 5 ] = (rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.005*l) )*zkey;
+
+					position[ i + 6 ] = ((rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.006*l)))*xkey;
+					position[ i + 7 ] = (rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.007*l ) )*ykey;
+					position[ i + 8 ] = (rangy+rndmarray[arraypos]) * ( Math.sin( time + 0.008*l ) )*zkey;
+
+			}
+				//text_movement
+				
+				for ( var i = 0, l = group.children.length; i < l; i ++ ) {
+
+					var object = group.children[ i ];
+
+					object.rotation.x += 0.01;
+					//object.rotation.y += 0.005;
+					
+
+				}
+				mesh.geometry.attributes.position.needsUpdate = true;
+				mesh.geometry.attributes.color.needsUpdate = true;
+				renderer.render( scene, camera );
+
+			}
+	
+		</script>
+
+	</body>
+</html>
